@@ -1,3 +1,4 @@
+import { HeroService } from "./../hero.service";
 import { HEROES } from "./../mock-heroes";
 import { Component, OnInit } from "@angular/core";
 import { Hero } from "../hero";
@@ -9,13 +10,25 @@ import { Hero } from "../hero";
 })
 export class HeroesComponent implements OnInit {
   selectedHero: Hero;
-  heroes = HEROES;
+  heroes: Hero[];
 
   onSelect(hero: Hero): void {
     this.selectedHero = hero;
   }
 
-  constructor() {}
+  getHeroes(): void {
+    // Retreive array of heroes from HeroService.
+    this.heroes = this.heroService.getHeroes();
+  }
 
-  ngOnInit() {}
+  constructor(private heroService: HeroService) {
+    // When created, the Dependency Injection system sets
+    // the heroService paramater to the singleton instance
+    // of HeroService.
+  }
+
+  ngOnInit() {
+    // Get array of heroes
+    this.getHeroes();
+  }
 }
