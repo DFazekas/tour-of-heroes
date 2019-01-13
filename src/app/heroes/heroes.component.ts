@@ -17,8 +17,9 @@ export class HeroesComponent implements OnInit {
   }
 
   getHeroes(): void {
-    // Retreive array of heroes from HeroService.
-    this.heroes = this.heroService.getHeroes();
+    // Waits for the Observable to emit the array of heroes.
+    // Subcribe acts like `then()`.
+    this.heroService.getHeroes().subscribe(heroes => (this.heroes = heroes));
   }
 
   constructor(private heroService: HeroService) {
