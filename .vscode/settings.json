@@ -1,0 +1,6 @@
+{
+  "autoimport.doubleQuotes": true,
+  "typescript.preferences.quoteStyle": "double",
+  "javascript.preferences.quoteStyle": "double",
+  "editor.formatOnSave": true
+}
