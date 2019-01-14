@@ -8,18 +8,7 @@ import { Hero } from "../hero";
   styleUrls: ["./heroes.component.css"]
 })
 export class HeroesComponent implements OnInit {
-  selectedHero: Hero;
   heroes: Hero[];
-
-  onSelect(hero: Hero): void {
-    this.selectedHero = hero;
-  }
-
-  getHeroes(): void {
-    // Waits for the Observable to emit the array of heroes.
-    // Subcribe acts like `then()`.
-    this.heroService.getHeroes().subscribe(heroes => (this.heroes = heroes));
-  }
 
   constructor(private heroService: HeroService) {
     // When created, the Dependency Injection system sets
@@ -30,5 +19,11 @@ export class HeroesComponent implements OnInit {
   ngOnInit() {
     // Get array of heroes
     this.getHeroes();
+  }
+
+  getHeroes(): void {
+    // Waits for the Observable to emit the array of heroes.
+    // Subcribe acts like `then()`.
+    this.heroService.getHeroes().subscribe(heroes => (this.heroes = heroes));
   }
 }
