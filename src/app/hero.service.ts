@@ -5,6 +5,11 @@ import { MessageService } from "./message.service";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { catchError, map, tap } from "rxjs/operators";
 
+// Heroes web api expects special header in HTTP save requests.
+const httpOptions = {
+  headers: new HttpHeaders({ "Content-Type": "application/json" })
+};
+
 @Injectable({
   providedIn: "root"
 })
@@ -19,9 +24,9 @@ export class HeroService {
     // property when it creates HeroService.
   }
 
+  /** GET: heroes from the server. */
   getHeroes(): Observable<Hero[]> {
     // Get array of heroes from the server.
-    // TODO: send message _after_ fetching the heroes.
     return this.http.get<Hero[]>(this.heroesUrl).pipe(
       // Log transaction.
       tap(_ => this.log("Fetched heroes")),
@@ -30,9 +35,9 @@ export class HeroService {
     );
   }
 
+  /** GET: hero by ID. Will 404 if ID not found. */
   getHero(id: Number): Observable<Hero> {
-    // Get hero by ID from server. Will 404 if ID not found.
-    // TODO: send message _after_ fetching the hero.
+    // Create URL.
     const url = `${this.heroesUrl}/${id}`;
     return this.http.get<Hero>(url).pipe(
       // Log transaction.
@@ -42,14 +47,39 @@ export class HeroService {
     );
   }
 
+  /** GET: hero by ID. Return "undefined" when ID not found. */
+  getHeroNo404<Data>(id: Number): Observable<Hero> {
+    // Create URL.
+    const url = `${this.heroesUrl}/?id=${id}`;
+
+    return this.http.get<Hero[]>(url).pipe(
+      map(heroes => heroes[0]), // Returns {0|1} element array.
+      tap(h => {
+        const outcome = h ? "Fetched" : "Did not find";
+        // Log transaction.
+        this.log(`${outcome} hero id=${id}`);
+      }),
+      catchError(this.handleError<Hero>(`GetHero id=${id}`))
+    );
+  }
+
+  /** GET: heroes whose name contains search term. */
+  searchHeroes(term: string): Observable<Hero[]> {
+    // If not search term, return empty hero array.
+    if (!term.trim()) {
+      return of([]);
+    }
+
+    return this.http.get<Hero[]>(`${this.heroesUrl}/?name=${term}`).pipe(
+      // Log transaction.
+      tap(_ => this.log(`Found heroes matching ${term}`)),
+      // Error handling.
+      catchError(this.handleError<Hero[]>("SearchHeroes", []))
+    );
+  }
+
+  /** PUT: update the hero on the server. */
   updateHero(hero: Hero): Observable<any> {
-    // Update hero in server.
-
-    // Heroes web api expects special header in HTTP save requests.
-    const httpOptions = {
-      headers: new HttpHeaders({ "Content-Type": "application/json" })
-    };
-
     return this.http.put(this.heroesUrl, hero, httpOptions).pipe(
       // Log transaction.
       tap(_ => this.log(`Updated hero id=${hero.id}`)),
@@ -60,13 +90,6 @@ export class HeroService {
 
   /** POST: add a new hero to the server. */
   addHero(hero: Hero): Observable<Hero> {
-    // Add new hero to server.
-
-    // Heroes web api expects special header in HTTP save requests.
-    const httpOptions = {
-      headers: new HttpHeaders({ "Content-Type": "application/json" })
-    };
-
     return this.http.post<Hero>(this.heroesUrl, hero, httpOptions).pipe(
       // Log transaction.
       tap((newHero: Hero) => this.log(`Added hero w/ id=${newHero.id}`)),
@@ -77,10 +100,6 @@ export class HeroService {
 
   /** DELETE: delete the hero from the server. */
   deleteHero(hero: Hero | number): Observable<Hero> {
-    // Heroes web api expects special header in HTTP save requests.
-    const httpOptions = {
-      headers: new HttpHeaders({ "Content-Type": "application/json" })
-    };
     const id = typeof hero === "number" ? hero : hero.id;
     const url = `${this.heroesUrl}/${id}`;
 
@@ -92,13 +111,17 @@ export class HeroService {
     );
   }
 
+  /** Log a HeroService message with the MessageService. */
   private log(message: string) {
-    // Log a HeroService message with the MessageService.
     this.messageService.add(`HeroService: ${message}`);
   }
 
+  /** Handle Http operation that failed.
+   * Let the app continue.
+   * @param operation - name of the operation that fialed.
+   * @param result - optional value to return as the Observable result.
+   */
   private handleError<T>(operation = "operation", result?: T) {
-    // Handle Http operation that failed.
     return (error: any): Observable<T> => {
       // TODO: send the error to remote logging infrastructure.
       console.error(error); // Log to console instead.

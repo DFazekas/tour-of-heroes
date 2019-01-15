@@ -19,10 +19,6 @@
   background-color: #ddd;
   left: 0.1em; /* Subtle pop */
 }
-.heroes .text {
-  position: relative;
-  top: -3px;
-}
 .heroes a {
   color: #888;
   text-decoration: none;
