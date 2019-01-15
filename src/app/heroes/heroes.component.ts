@@ -26,4 +26,25 @@ export class HeroesComponent implements OnInit {
     // Subcribe acts like `then()`.
     this.heroService.getHeroes().subscribe(heroes => (this.heroes = heroes));
   }
+
+  add(name: string): void {
+    // Creates new Hero from given name. Adds to server.
+    name = name.trim();
+
+    // Validate non-empty string.
+    if (!name) {
+      return;
+    }
+    this.heroService.addHero({ name } as Hero).subscribe(hero => {
+      this.heroes.push(hero);
+    });
+  }
+
+  delete(hero: Hero): void {
+    // Filter out deleted hero from local list of heroes.
+    this.heroes = this.heroes.filter(h => h !== hero);
+
+    // Delete hero from server.
+    this.heroService.deleteHero(hero).subscribe();
+  }
 }

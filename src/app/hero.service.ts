@@ -23,7 +23,9 @@ export class HeroService {
     // Get array of heroes from the server.
     // TODO: send message _after_ fetching the heroes.
     return this.http.get<Hero[]>(this.heroesUrl).pipe(
+      // Log transaction.
       tap(_ => this.log("Fetched heroes")),
+      // Error handling.
       catchError(this.handleError("getHeroes", []))
     );
   }
@@ -33,8 +35,60 @@ export class HeroService {
     // TODO: send message _after_ fetching the hero.
     const url = `${this.heroesUrl}/${id}`;
     return this.http.get<Hero>(url).pipe(
+      // Log transaction.
       tap(_ => this.log(`Fetched hero id=${id}`)),
+      // Error handling.
       catchError(this.handleError<Hero>(`GetHero id=${id}`))
+    );
+  }
+
+  updateHero(hero: Hero): Observable<any> {
+    // Update hero in server.
+
+    // Heroes web api expects special header in HTTP save requests.
+    const httpOptions = {
+      headers: new HttpHeaders({ "Content-Type": "application/json" })
+    };
+
+    return this.http.put(this.heroesUrl, hero, httpOptions).pipe(
+      // Log transaction.
+      tap(_ => this.log(`Updated hero id=${hero.id}`)),
+      // Error handling.
+      catchError(this.handleError<any>("UpdateHero"))
+    );
+  }
+
+  /** POST: add a new hero to the server. */
+  addHero(hero: Hero): Observable<Hero> {
+    // Add new hero to server.
+
+    // Heroes web api expects special header in HTTP save requests.
+    const httpOptions = {
+      headers: new HttpHeaders({ "Content-Type": "application/json" })
+    };
+
+    return this.http.post<Hero>(this.heroesUrl, hero, httpOptions).pipe(
+      // Log transaction.
+      tap((newHero: Hero) => this.log(`Added hero w/ id=${newHero.id}`)),
+      // Error handling.
+      catchError(this.handleError<Hero>("AddHero"))
+    );
+  }
+
+  /** DELETE: delete the hero from the server. */
+  deleteHero(hero: Hero | number): Observable<Hero> {
+    // Heroes web api expects special header in HTTP save requests.
+    const httpOptions = {
+      headers: new HttpHeaders({ "Content-Type": "application/json" })
+    };
+    const id = typeof hero === "number" ? hero : hero.id;
+    const url = `${this.heroesUrl}/${id}`;
+
+    return this.http.delete<Hero>(url, httpOptions).pipe(
+      // Log transaction.
+      tap(_ => this.log(`Delete hero id=${id}`)),
+      // Error handling.
+      catchError(this.handleError<Hero>("DeleteHero"))
     );
   }
 
