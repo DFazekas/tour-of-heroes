@@ -1,10 +1,11 @@
 import { Injectable } from "@angular/core";
 import { Hero } from "./hero";
+import { InMemoryDbService } from "angular-in-memory-web-api";
 
 @Injectable({
   providedIn: "root"
 })
-export class InMemoryDataService implements InMemoryDataService {
+export class InMemoryDataService implements InMemoryDbService {
   constructor() {}
 
   createDb() {
